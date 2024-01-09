@@ -33,6 +33,7 @@ export const wineRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const lastWine = await ctx.db.wine.findFirst({
+        where: { createdById: ctx.session.user.id },
         orderBy: { id: "desc" },
         select: { counter: true },
       });
