@@ -38,7 +38,7 @@ export default function Home() {
           <Table.TableBody>
             {wines?.map((wine) => (
               <Table.TableRow key={wine.id}>
-                <Table.TableCell>{wine.id}</Table.TableCell>
+                <Table.TableCell>{wine.counter}</Table.TableCell>
                 <Table.TableCell>{wine.name}</Table.TableCell>
                 <Table.TableCell>{wine.year}</Table.TableCell>
                 <Table.TableCell>{wine.type}</Table.TableCell>
