@@ -152,6 +152,8 @@ export default function EditWine() {
           <Input
             id="year"
             type="number"
+            max={new Date().getFullYear()}
+            min={1900}
             value={wine?.year}
             onChange={(e) =>
               wine && setWine({ ...wine, year: parseInt(e.target.value) })
