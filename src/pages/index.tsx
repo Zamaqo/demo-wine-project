@@ -8,7 +8,19 @@ import { api } from "~/utils/api";
 
 export default function Home() {
   useSession({ required: true });
+
+  const utils = api.useUtils();
   const { data: wines } = api.wine.getAll.useQuery();
+
+  const deleteWine = api.wine.delete.useMutation();
+  const handleDeleteWine = async (id: number) => {
+    utils.wine.getAll.setData(undefined, (prev) => {
+      if (!prev) return prev;
+      return prev.filter((wine) => wine.id !== id);
+    });
+
+    await deleteWine.mutateAsync({ id });
+  };
 
   return (
     <>
@@ -49,9 +61,15 @@ export default function Home() {
                 <Table.TableCell>
                   {wine.dateConsumed?.toDateString() ?? "N/A"}
                 </Table.TableCell>
-                <Table.TableCell>
+                <Table.TableCell className="space-x-4">
                   <Button variant="outline">
                     <Link href={`/${wine.id}/edit`}>Edit</Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleDeleteWine(wine.id)}
+                  >
+                    Delete
                   </Button>
                 </Table.TableCell>
               </Table.TableRow>

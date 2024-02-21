@@ -21,6 +21,17 @@ import { cn } from "~/lib/utils";
 
 import { api, type RouterInputs } from "~/utils/api";
 
+import { Check, ChevronsUpDown } from "lucide-react";
+
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "~/components/ui/command";
+import { wineries } from "~/lib/data";
+
 const WINE_TYPES: WineType[] = [
   "RED",
   "WHITE",
@@ -38,6 +49,8 @@ const DEFAULT_WINE: WineInput = {
   rating: 0,
   consumed: false,
   dateConsumed: null,
+  quantity: 1,
+  wineryKey: "",
 };
 
 export default function CreateWine() {
@@ -52,6 +65,8 @@ export default function CreateWine() {
     await createWine.mutateAsync(wine);
     await router.push("/");
   };
+
+  const [winerySelectorOpen, setWinerySelectorOpen] = useState(false);
 
   return (
     <>
@@ -72,6 +87,62 @@ export default function CreateWine() {
             disabled={!wine}
           />
         </fieldset>
+
+        <fieldset>
+          <Label htmlFor="winery">Winery</Label>
+          <Popover
+            open={winerySelectorOpen}
+            onOpenChange={setWinerySelectorOpen}
+          >
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={winerySelectorOpen}
+                className="flex w-[200px] justify-between"
+              >
+                {wine.wineryKey
+                  ? wineries.find((winery) => winery.key === wine.wineryKey)
+                      ?.name
+                  : "Select winery..."}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0">
+              <Command>
+                <CommandInput placeholder="Search winery..." />
+                <CommandEmpty>No wineries found.</CommandEmpty>
+                <CommandGroup className="max-h-60 overflow-y-auto">
+                  {wineries.map((winery) => (
+                    <CommandItem
+                      key={winery.key}
+                      value={winery.key}
+                      onSelect={(currentValue: string) => {
+                        setWine((prev) => ({
+                          ...prev,
+                          wineryKey:
+                            currentValue === wine.wineryKey ? "" : currentValue,
+                        }));
+                        setWinerySelectorOpen(false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          wine.wineryKey === winery.key
+                            ? "opacity-100"
+                            : "opacity-0",
+                        )}
+                      />
+                      {winery.name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
+        </fieldset>
+
         <fieldset>
           <Label htmlFor="year">Year</Label>
           <Input
@@ -130,6 +201,21 @@ export default function CreateWine() {
             disabled={!wine}
           />
         </fieldset>
+
+        <fieldset>
+          <Label htmlFor="quantity">Quantity</Label>
+          <Input
+            id="quantity"
+            type="number"
+            step="0.1"
+            value={wine?.quantity}
+            onChange={(e) =>
+              wine && setWine({ ...wine, quantity: parseFloat(e.target.value) })
+            }
+            disabled={!wine}
+          />
+        </fieldset>
+
         <fieldset className="flex items-center gap-4">
           <Checkbox
             id="consumed"
@@ -146,7 +232,7 @@ export default function CreateWine() {
               <Button
                 variant={"outline"}
                 className={cn(
-                  "w-[240px] justify-start text-left font-normal",
+                  "ml-auto w-[240px] justify-start text-left font-normal",
                   !wine?.dateConsumed && "text-muted-foreground",
                 )}
                 disabled={!wine || !wine.consumed}

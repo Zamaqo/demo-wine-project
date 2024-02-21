@@ -1,5 +1,6 @@
 generator client {
-    provider = "prisma-client-js"
+    provider        = "prisma-client-js"
+    previewFeatures = []
 }
 
 datasource db {
@@ -28,6 +29,7 @@ model Wine {
     rating       Float
     consumed     Boolean
     dateConsumed DateTime?
+    wineryKey    String    @db.Text
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

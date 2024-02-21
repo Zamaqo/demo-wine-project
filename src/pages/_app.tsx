@@ -8,6 +8,7 @@ import "~/styles/globals.css";
 
 import { Inter as FontSans } from "next/font/google";
 import { cn } from "~/lib/utils";
+import { useEffect } from "react";
 
 export const fontSans = FontSans({
   subsets: ["latin"],
@@ -18,6 +19,14 @@ const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
+  useEffect(() => {
+    cn("bg-background font-sans antialiased", fontSans.variable)
+      .split(" ")
+      .forEach((className) => {
+        document.documentElement.classList.add(className);
+      });
+  }, []);
+
   return (
     <SessionProvider session={session}>
       <main

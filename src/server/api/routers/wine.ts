@@ -29,6 +29,8 @@ export const wineRouter = createTRPCRouter({
         rating: z.number(),
         consumed: z.boolean(),
         dateConsumed: z.date().nullish(),
+        quantity: z.number(),
+        wineryKey: z.string().min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -38,12 +40,15 @@ export const wineRouter = createTRPCRouter({
         select: { counter: true },
       });
 
-      const wine = await ctx.db.wine.create({
-        data: {
-          ...input,
-          counter: lastWine ? lastWine.counter + 1 : 1,
-          createdBy: { connect: { id: ctx.session.user.id } },
-        },
+      const { quantity, ...rest } = input;
+      const data = Array.from({ length: quantity }).map((_, idx) => ({
+        ...rest,
+        counter: lastWine ? lastWine.counter + 1 + idx : 1 + idx,
+        createdById: ctx.session.user.id,
+      }));
+
+      const wine = await ctx.db.wine.createMany({
+        data,
       });
       return wine;
     }),
@@ -59,6 +64,7 @@ export const wineRouter = createTRPCRouter({
         rating: z.number(),
         consumed: z.boolean(),
         dateConsumed: z.date().nullish(),
+        wineryKey: z.string().min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -68,6 +74,15 @@ export const wineRouter = createTRPCRouter({
           ...input,
           dateConsumed: input.consumed ? input.dateConsumed : null,
         },
+      });
+      return wine;
+    }),
+
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const wine = await ctx.db.wine.delete({
+        where: { id: input.id },
       });
       return wine;
     }),
