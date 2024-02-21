@@ -190,6 +190,7 @@ export default function CreateWine() {
             id="rating"
             type="number"
             step="0.1"
+            max="5"
             value={wine?.rating}
             onChange={(e) =>
               wine && setWine({ ...wine, rating: parseFloat(e.target.value) })
