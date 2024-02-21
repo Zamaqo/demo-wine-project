@@ -207,7 +207,6 @@ export default function CreateWine() {
           <Input
             id="quantity"
             type="number"
-            step="0.1"
             value={wine?.quantity}
             onChange={(e) =>
               wine && setWine({ ...wine, quantity: parseFloat(e.target.value) })
