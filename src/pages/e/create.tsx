@@ -70,7 +70,7 @@ export default function CreateWine() {
     };
 
     await createWine.mutateAsync(alteredWine);
-    await router.push("/");
+    await router.push("/e");
   };
 
   const [winerySelectorOpen, setWinerySelectorOpen] = useState(false);

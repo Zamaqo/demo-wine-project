@@ -61,7 +61,7 @@ export default function EditWine() {
     if (wine === null) return;
 
     await editWine.mutateAsync(wine);
-    await router.push("/");
+    await router.push("/e");
   };
 
   const [winerySelectorOpen, setWinerySelectorOpen] = useState(false);
