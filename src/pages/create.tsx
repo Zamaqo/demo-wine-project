@@ -1,14 +1,10 @@
 import type { WineType } from "@prisma/client";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
-import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import {
@@ -213,48 +209,6 @@ export default function CreateWine() {
             }
             disabled={!wine}
           />
-        </fieldset>
-
-        <fieldset className="flex items-center gap-4">
-          <Checkbox
-            id="consumed"
-            checked={wine?.consumed}
-            onCheckedChange={(checked) =>
-              wine && setWine({ ...wine, consumed: checked as boolean })
-            }
-            disabled={!wine}
-          />
-          <Label htmlFor="consumed">Consumed</Label>
-
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "ml-auto w-[240px] justify-start text-left font-normal",
-                  !wine?.dateConsumed && "text-muted-foreground",
-                )}
-                disabled={!wine || !wine.consumed}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {wine?.dateConsumed ? (
-                  format(wine?.dateConsumed, "PPP")
-                ) : (
-                  <span>Date Consumed</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={wine?.dateConsumed ?? undefined}
-                onSelect={(date) =>
-                  wine && setWine({ ...wine, dateConsumed: date ?? null })
-                }
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
         </fieldset>
 
         <div className="flex justify-between">
