@@ -12,7 +12,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import * as Select from "~/components/ui/select";
 import { cn } from "~/lib/utils";
 
 import { api, type RouterInputs } from "~/utils/api";
@@ -70,6 +69,7 @@ export default function CreateWine() {
   };
 
   const [winerySelectorOpen, setWinerySelectorOpen] = useState(false);
+  const [typeSelectorOpen, setTypeSelectorOpen] = useState(false);
 
   return (
     <>
@@ -160,25 +160,48 @@ export default function CreateWine() {
         </fieldset>
         <fieldset>
           <Label htmlFor="type">Type</Label>
-          <Select.Select
-            onValueChange={(value) =>
-              wine && setWine({ ...wine, type: value as WineType })
-            }
-          >
-            <Select.SelectTrigger className="w-[180px]">
-              <Select.SelectValue id="type" placeholder="Select a type" />
-            </Select.SelectTrigger>
-            <Select.SelectContent>
-              <Select.SelectGroup>
-                <Select.SelectLabel>Types</Select.SelectLabel>
-                {WINE_TYPES.map((type) => (
-                  <Select.SelectItem key={type} value={type}>
-                    {type}
-                  </Select.SelectItem>
-                ))}
-              </Select.SelectGroup>
-            </Select.SelectContent>
-          </Select.Select>
+          <Popover open={typeSelectorOpen} onOpenChange={setTypeSelectorOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={typeSelectorOpen}
+                className="flex w-[200px] justify-between"
+              >
+                {wine.type
+                  ? WINE_TYPES.find((type) => type === wine.type)
+                  : "Select type..."}
+                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0">
+              <Command>
+                <CommandGroup className="max-h-60 overflow-y-auto">
+                  {WINE_TYPES.map((type) => (
+                    <CommandItem
+                      key={type}
+                      value={type}
+                      onSelect={(currentValue: string) => {
+                        setWine((prev) => ({
+                          ...prev,
+                          type: currentValue as WineType,
+                        }));
+                        setTypeSelectorOpen(false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          wine.type === type ? "opacity-100" : "opacity-0",
+                        )}
+                      />
+                      {type}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
         </fieldset>
         <fieldset>
           <Label htmlFor="varietal">Varietal</Label>
