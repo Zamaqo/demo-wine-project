@@ -6,6 +6,7 @@ export const wineRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     const wines = await ctx.db.wine.findMany({
       where: { createdById: ctx.session.user.id },
+      orderBy: { counter: "asc" },
     });
     return wines;
   }),
