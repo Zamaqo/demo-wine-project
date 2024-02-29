@@ -45,6 +45,7 @@ export const wineRouter = createTRPCRouter({
         ...rest,
         counter: lastWine ? lastWine.counter + 1 + idx : 1 + idx,
         createdById: ctx.session.user.id,
+        note: "",
       }));
 
       const wine = await ctx.db.wine.createMany({
@@ -65,6 +66,7 @@ export const wineRouter = createTRPCRouter({
         consumed: z.boolean(),
         dateConsumed: z.date().nullish(),
         wineryKey: z.string().min(1),
+        note: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {

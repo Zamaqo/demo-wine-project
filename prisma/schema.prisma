@@ -30,6 +30,7 @@ model Wine {
     consumed     Boolean
     dateConsumed DateTime?
     wineryKey    String    @db.Text
+    note         String    @db.Text
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
