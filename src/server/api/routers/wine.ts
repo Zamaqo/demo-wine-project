@@ -23,6 +23,7 @@ export const wineRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string(),
+        imageUrl: z.string().nullish(),
         type: z.enum(["RED", "WHITE", "ROSE", "WHITE_BLEND", "RED_BLEND"]),
         year: z.number(),
         varietal: z.string(),
@@ -46,6 +47,7 @@ export const wineRouter = createTRPCRouter({
         counter: lastWine ? lastWine.counter + 1 + idx : 1 + idx,
         createdById: ctx.session.user.id,
         note: "",
+        imageUrl: input.imageUrl,
       }));
 
       const wine = await ctx.db.wine.createMany({
@@ -59,6 +61,7 @@ export const wineRouter = createTRPCRouter({
       z.object({
         id: z.number(),
         name: z.string(),
+        imageUrl: z.string().nullish(),
         type: z.enum(["RED", "WHITE", "ROSE", "WHITE_BLEND", "RED_BLEND"]),
         year: z.number(),
         varietal: z.string(),
@@ -75,6 +78,7 @@ export const wineRouter = createTRPCRouter({
         data: {
           ...input,
           dateConsumed: input.consumed ? input.dateConsumed : null,
+          imageUrl: input.imageUrl,
         },
       });
       return wine;

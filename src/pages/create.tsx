@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import type { WineType } from "@prisma/client";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
@@ -16,7 +17,7 @@ import { cn } from "~/lib/utils";
 
 import { api, type RouterInputs } from "~/utils/api";
 
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, XIcon } from "lucide-react";
 
 import {
   Command,
@@ -26,6 +27,7 @@ import {
   CommandItem,
 } from "~/components/ui/command";
 import { wineries } from "~/lib/data";
+import { UploadButton } from "~/utils/uploadthing";
 
 const WINE_TYPES: WineType[] = [
   "RED",
@@ -38,6 +40,7 @@ const WINE_TYPES: WineType[] = [
 type WineInput = RouterInputs["wine"]["create"];
 const DEFAULT_WINE: WineInput = {
   name: "",
+  imageUrl: "",
   year: 2023,
   type: "RED",
   varietal: "",
@@ -62,6 +65,8 @@ export default function CreateWine() {
   const [winerySelectorOpen, setWinerySelectorOpen] = useState(false);
   const [typeSelectorOpen, setTypeSelectorOpen] = useState(false);
 
+  const [uploadBusy, setUploadBusy] = useState(false);
+
   return (
     <>
       <Head>
@@ -72,6 +77,107 @@ export default function CreateWine() {
 
       <main className="mx-auto my-4 max-w-lg space-y-4 px-8">
         <h1 className="text-center text-3xl font-bold">Create Wine</h1>
+
+        {wine?.imageUrl ?? !wine ? (
+          <>
+            {wine ? (
+              <div className="relative">
+                <img
+                  src={wine?.imageUrl ?? ""}
+                  alt="Uploaded wine label"
+                  className="h-auto w-full rounded-md"
+                  fetchPriority="high"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="absolute right-2 top-2 h-5 w-5"
+                  onClick={() => wine && setWine({ ...wine, imageUrl: "" })}
+                >
+                  <XIcon className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </div>
+            ) : (
+              <div className="h-52 w-full animate-pulse rounded-md bg-muted" />
+            )}
+          </>
+        ) : uploadBusy ? (
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xmlnsXlink="http://www.w3.org/1999/xlink"
+            className="m-auto block h-10 w-10 bg-transparent grayscale"
+            width="200px"
+            height="200px"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="xMidYMid"
+          >
+            <circle
+              cx="50"
+              cy="50"
+              r="35"
+              stroke-width="5"
+              stroke="#93dbe9"
+              stroke-dasharray="54.97787143782138 54.97787143782138"
+              fill="none"
+              stroke-linecap="round"
+            >
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                dur="1s"
+                repeatCount="indefinite"
+                keyTimes="0;1"
+                values="0 50 50;360 50 50"
+              ></animateTransform>
+            </circle>
+            <circle
+              cx="50"
+              cy="50"
+              r="29"
+              stroke-width="5"
+              stroke="#689cc5"
+              stroke-dasharray="45.553093477052 45.553093477052"
+              stroke-dashoffset="45.553093477052"
+              fill="none"
+              stroke-linecap="round"
+            >
+              <animateTransform
+                attributeName="transform"
+                type="rotate"
+                dur="1s"
+                repeatCount="indefinite"
+                keyTimes="0;1"
+                values="0 50 50;-360 50 50"
+              ></animateTransform>
+            </circle>
+          </svg>
+        ) : (
+          <Button>
+            <UploadButton
+              endpoint="imageUploader"
+              content={{
+                allowedContent: <></>,
+              }}
+              onClientUploadComplete={(res) => {
+                setUploadBusy(false);
+
+                wine &&
+                  setWine({
+                    ...wine,
+                    imageUrl: res.at(0)?.url ?? "",
+                  });
+              }}
+              onUploadError={(error: Error) => {
+                console.error("Upload error", error);
+                setUploadBusy(false);
+              }}
+              onUploadBegin={() => {
+                setUploadBusy(true);
+              }}
+            />
+          </Button>
+        )}
+
         <fieldset>
           <Label htmlFor="name">Name</Label>
           <Input
@@ -246,5 +352,3 @@ export default function CreateWine() {
     </>
   );
 }
-
-

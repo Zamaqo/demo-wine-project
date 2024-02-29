@@ -1,5 +1,6 @@
 import { useSession } from "next-auth/react";
 import Head from "next/head";
+import Image from "next/image";
 import Link from "next/link";
 import { UserNav } from "~/components/UserNav";
 import { Button } from "~/components/ui/button";
@@ -42,6 +43,7 @@ export default function Home() {
           <Table.TableHeader>
             <Table.TableRow>
               <Table.TableHead>ID</Table.TableHead>
+              <Table.TableHead>Image</Table.TableHead>
               <Table.TableHead>Name</Table.TableHead>
               <Table.TableHead>Year</Table.TableHead>
               <Table.TableHead>Type</Table.TableHead>
@@ -55,6 +57,18 @@ export default function Home() {
             {wines?.map((wine) => (
               <Table.TableRow key={wine.id}>
                 <Table.TableCell>{wine.counter}</Table.TableCell>
+                <Table.TableCell>
+                  {wine.imageUrl ? (
+                    <Image
+                      src={wine.imageUrl}
+                      width={50}
+                      height={50}
+                      alt={wine.name}
+                    />
+                  ) : (
+                    "N/A"
+                  )}
+                </Table.TableCell>
                 <Table.TableCell>{wine.name}</Table.TableCell>
                 <Table.TableCell>{wine.year}</Table.TableCell>
                 <Table.TableCell>{wine.type}</Table.TableCell>
