@@ -143,6 +143,7 @@ export default function Home() {
             </Table.TableCaption>
             <Table.TableHeader>
               <Table.TableRow>
+                <Table.TableHead>Quantity</Table.TableHead>
                 <Table.TableHead>Image</Table.TableHead>
                 <Table.TableHead>Name</Table.TableHead>
                 <Table.TableHead>Year</Table.TableHead>
@@ -152,6 +153,7 @@ export default function Home() {
             <Table.TableBody>
               {aggregatedWines?.map((wine, index) => (
                 <Table.TableRow key={wine.name + index}>
+                  <Table.TableCell>{wine.count}</Table.TableCell>
                   <Table.TableCell>
                     {wine.imageUrl ? (
                       <Image
