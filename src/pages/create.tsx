@@ -161,11 +161,10 @@ export default function CreateWine() {
               onClientUploadComplete={(res) => {
                 setUploadBusy(false);
 
-                wine &&
-                  setWine({
-                    ...wine,
-                    imageUrl: res.at(0)?.url ?? "",
-                  });
+                setWine((prev) => ({
+                  ...prev,
+                  imageUrl: res.at(0)?.url ?? "",
+                }));
               }}
               onUploadError={(error: Error) => {
                 console.error("Upload error", error);
