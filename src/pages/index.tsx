@@ -64,6 +64,7 @@ export default function Home() {
                       width={50}
                       height={50}
                       alt={wine.name}
+                      className="h-[50px] w-[50px] rounded-md object-contain"
                     />
                   ) : (
                     "N/A"
