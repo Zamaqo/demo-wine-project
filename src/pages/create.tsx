@@ -338,7 +338,7 @@ export default function CreateWine() {
           />
         </fieldset>
 
-        <fieldset>
+        {/* <fieldset>
           <Label htmlFor="quantity">Quantity</Label>
           <Input
             id="quantity"
@@ -349,7 +349,7 @@ export default function CreateWine() {
             }
             disabled={!wine}
           />
-        </fieldset>
+        </fieldset> */}
 
         <div className="flex justify-between">
           <Button>
