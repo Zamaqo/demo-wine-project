@@ -135,7 +135,7 @@ export default function Home() {
           ) : (
             <div className="h-40 w-40 bg-gray-200" />
           )}
-          <div>
+          <div className="grow">
             <h1 className="text-3xl font-bold">{wine?.name}</h1>
             <p className="text-lg font-light">
               {wine?.year} {wine?.type} •{" "}
@@ -148,14 +148,12 @@ export default function Home() {
             <p className="text-sm font-light">{wine?.note}</p>
           </div>
 
-          <div className="flex w-full justify-end">
-            <Button
-              onClick={() => router.push(`/${wine?.id}/edit`)}
-              variant="outline"
-            >
-              Edit
-            </Button>
-          </div>
+          <Button
+            onClick={() => router.push(`/${wine?.id}/edit`)}
+            variant="outline"
+          >
+            Edit
+          </Button>
         </div>
 
         <div className="flex items-center justify-end gap-4">
