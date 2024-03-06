@@ -64,8 +64,9 @@ export default function Home() {
     await deleteWineBottle.mutateAsync({ id });
   };
 
-  const [consumingWineBottle, setConsumingWineBottle] =
-    useState<WineBottle | null>(null);
+  const [consumingWineBottle, setConsumingWineBottle] = useState<
+    (WineBottle & { edit?: boolean }) | null
+  >(null);
 
   const editBottle = api.wine.editWineBottle.useMutation();
   const handleConsumeWineBottle = async () => {
@@ -77,12 +78,14 @@ export default function Home() {
         if (!prev) return prev;
         return {
           ...prev,
-          wineBottles: prev.wineBottles.map((wine) => {
-            if (wine.id === consumingWineBottle.id) {
-              return consumingWineBottle;
-            }
-            return wine;
-          }),
+          wineBottles: prev.wineBottles
+            .map((wine) => {
+              if (wine.id === consumingWineBottle.id) {
+                return consumingWineBottle;
+              }
+              return wine;
+            })
+            .sort((a, b) => a.counter - b.counter),
         };
       },
     );
@@ -220,13 +223,13 @@ export default function Home() {
                       setConsumingWineBottle({
                         ...bottle,
                         consumed: true,
-                        dateConsumed: new Date(),
+                        dateConsumed: bottle.dateConsumed ?? new Date(),
+                        edit: bottle.consumed,
                       })
                     }
                     variant="outline"
-                    disabled={bottle.consumed}
                   >
-                    Consume
+                    {bottle.consumed ? "Edit" : "Consume"}
                   </Button>
                   <Button
                     onClick={() => handleDeleteWineBottle(bottle.id)}
@@ -247,47 +250,51 @@ export default function Home() {
         <DialogPortal>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Consume Bottle</DialogTitle>
+              <DialogTitle>
+                {consumingWineBottle?.edit ? "Edit" : "Consume"} Bottle
+              </DialogTitle>
             </DialogHeader>
 
-            <fieldset>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "ml-auto w-[240px] justify-start text-left font-normal",
-                      !consumingWineBottle?.dateConsumed &&
-                        "text-muted-foreground",
-                    )}
+            {!consumingWineBottle?.edit && (
+              <fieldset>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "ml-auto w-[240px] justify-start text-left font-normal",
+                        !consumingWineBottle?.dateConsumed &&
+                          "text-muted-foreground",
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {consumingWineBottle?.dateConsumed ? (
+                        format(consumingWineBottle?.dateConsumed, "PPP")
+                      ) : (
+                        <span>Date Consumed</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-auto rounded-lg border bg-background p-0"
+                    align="start"
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {consumingWineBottle?.dateConsumed ? (
-                      format(consumingWineBottle?.dateConsumed, "PPP")
-                    ) : (
-                      <span>Date Consumed</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="w-auto rounded-lg border bg-background p-0"
-                  align="start"
-                >
-                  <Calendar
-                    mode="single"
-                    selected={consumingWineBottle?.dateConsumed ?? undefined}
-                    onSelect={(date) =>
-                      consumingWineBottle &&
-                      setConsumingWineBottle({
-                        ...consumingWineBottle,
-                        dateConsumed: date ?? null,
-                      })
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </fieldset>
+                    <Calendar
+                      mode="single"
+                      selected={consumingWineBottle?.dateConsumed ?? undefined}
+                      onSelect={(date) =>
+                        consumingWineBottle &&
+                        setConsumingWineBottle({
+                          ...consumingWineBottle,
+                          dateConsumed: date ?? null,
+                        })
+                      }
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </fieldset>
+            )}
 
             <fieldset>
               <Label htmlFor="note">Note</Label>
@@ -306,7 +313,9 @@ export default function Home() {
             </fieldset>
 
             <DialogFooter>
-              <Button onClick={handleConsumeWineBottle}>Consume</Button>
+              <Button onClick={handleConsumeWineBottle}>
+                {consumingWineBottle?.edit ? "Save" : "Consume"}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </DialogPortal>

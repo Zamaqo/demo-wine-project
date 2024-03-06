@@ -16,7 +16,13 @@ export const wineRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const wine = await ctx.db.wine.findUnique({
         where: { id: input.id },
-        include: { wineBottles: true },
+        include: {
+          wineBottles: {
+            orderBy: {
+              counter: "asc",
+            },
+          },
+        },
       });
       return wine;
     }),
