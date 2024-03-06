@@ -13,19 +13,7 @@ import { useRouter } from "next/router";
 
 export default function Home() {
   const { data: session } = useSession({ required: true });
-
-  const utils = api.useUtils();
   const { data: wines } = api.wine.getWines.useQuery();
-
-  const deleteWine = api.wine.deleteWine.useMutation();
-  const handleDeleteWine = async (id: number) => {
-    utils.wine.getWines.setData(undefined, (prev) => {
-      if (!prev) return prev;
-      return prev.filter((wine) => wine.id !== id);
-    });
-
-    await deleteWine.mutateAsync({ id });
-  };
 
   const router = useRouter();
 
@@ -54,8 +42,11 @@ export default function Home() {
               <Table.TableHead>Name</Table.TableHead>
               <Table.TableHead>Quantity</Table.TableHead>
               <Table.TableHead>Year</Table.TableHead>
+              <Table.TableHead>Type</Table.TableHead>
               <Table.TableHead>Winery</Table.TableHead>
-              <Table.TableHead>Actions</Table.TableHead>
+              <Table.TableHead>Rating</Table.TableHead>
+              <Table.TableHead>Variatal</Table.TableHead>
+              <Table.TableHead>Note</Table.TableHead>
             </Table.TableRow>
           </Table.TableHeader>
           <Table.TableBody>
@@ -84,26 +75,16 @@ export default function Home() {
                 <Table.TableCell>{wine.name}</Table.TableCell>
                 <Table.TableCell>{wine._count.wineBottles}</Table.TableCell>
                 <Table.TableCell>{wine.year}</Table.TableCell>
+                <Table.TableCell>{wine.type}</Table.TableCell>
                 <Table.TableCell>
                   {
                     wineries.find((winery) => winery.key === wine.wineryKey)
                       ?.name
                   }
                 </Table.TableCell>
-                <Table.TableCell className="flex gap-2">
-                  <Button
-                    onClick={() => router.push(`/${wine.id}/edit`)}
-                    variant="outline"
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    onClick={() => handleDeleteWine(wine.id)}
-                    variant="outline"
-                  >
-                    Delete
-                  </Button>
-                </Table.TableCell>
+                <Table.TableCell>{wine.rating}</Table.TableCell>
+                <Table.TableCell>{wine.varietal}</Table.TableCell>
+                <Table.TableCell>{wine.note}</Table.TableCell>
               </Table.TableRow>
             ))}
           </Table.TableBody>

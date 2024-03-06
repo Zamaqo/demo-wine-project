@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import { UserNav } from "~/components/UserNav";
@@ -26,59 +27,50 @@ import { PopoverContent } from "@radix-ui/react-popover";
 import { Calendar } from "~/components/ui/calendar";
 import { Textarea } from "~/components/ui/textarea";
 import { Label } from "~/components/ui/label";
+import { wineries } from "~/lib/data";
 
 export default function Home() {
   const { data: session } = useSession({ required: true });
   const router = useRouter();
 
+  const [showConsumed, setShowConsumed] = useState(true);
+
   const wineId = router.query.wineId as string;
-  const { data: wineBottles } = api.wine.getWineBottles.useQuery(
+  const { data: wine } = api.wine.getWine.useQuery(
     { id: wineId ? parseInt(wineId) : 0 },
     { enabled: !!wineId },
+  );
+
+  const wineBottles = wine?.wineBottles.filter(
+    (w) => showConsumed || !w.consumed,
   );
 
   const utils = api.useUtils();
   const deleteWineBottle = api.wine.deleteWineBottle.useMutation();
   const handleDeleteWineBottle = async (id: number) => {
-    utils.wine.getWineBottles.setData(
+    utils.wine.getWine.setData(
       { id: wineId ? parseInt(wineId) : 0 },
       (prev) => {
         if (!prev) return prev;
-        return prev.filter((wine) => wine.id !== id);
+        return {
+          ...prev,
+          wineBottles: prev.wineBottles.filter((b) => b.id !== id),
+        };
       },
     );
 
     await deleteWineBottle.mutateAsync({ id });
   };
 
+  const [addingWineBottle, setAddingWineBottle] = useState(false);
   const addWineBottle = api.wine.addBottle.useMutation();
   const handleAddWineBottle = async () => {
-    utils.wine.getWineBottles.setData(
-      { id: wineId ? parseInt(wineId) : 0 },
-      (prev) => {
-        if (!prev) return prev;
-
-        const newEntry = {
-          id:
-            prev.reduce((acc, curr) => (acc > curr.id ? acc : curr.id), 0) + 1,
-          counter:
-            prev.reduce(
-              (acc, curr) => (acc > curr.counter ? acc : curr.counter),
-              0,
-            ) + 1,
-          consumed: false,
-          dateConsumed: null,
-          note: "",
-          wineId: wineId ? parseInt(wineId) : 0,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-
-        return [...prev, newEntry];
-      },
-    );
-
+    setAddingWineBottle(true);
     await addWineBottle.mutateAsync({ id: wineId ? parseInt(wineId) : 0 });
+    await utils.wine.getWine.invalidate({
+      id: wineId ? parseInt(wineId) : 0,
+    });
+    setAddingWineBottle(false);
   };
 
   const [consumingWineBottle, setConsumingWineBottle] =
@@ -88,16 +80,19 @@ export default function Home() {
   const handleConsumeWineBottle = async () => {
     if (!consumingWineBottle) return;
 
-    utils.wine.getWineBottles.setData(
+    utils.wine.getWine.setData(
       { id: wineId ? parseInt(wineId) : 0 },
       (prev) => {
         if (!prev) return prev;
-        return prev.map((wine) => {
-          if (wine.id === consumingWineBottle.id) {
-            return consumingWineBottle;
-          }
-          return wine;
-        });
+        return {
+          ...prev,
+          wineBottles: prev.wineBottles.map((wine) => {
+            if (wine.id === consumingWineBottle.id) {
+              return consumingWineBottle;
+            }
+            return wine;
+          }),
+        };
       },
     );
 
@@ -118,11 +113,58 @@ export default function Home() {
             <Button variant="outline">
               <Link href="/">Go Back</Link>
             </Button>
-            <Button onClick={() => void handleAddWineBottle()}>
+            <Button
+              onClick={() => void handleAddWineBottle()}
+              disabled={addingWineBottle}
+            >
               Add Bottle
             </Button>
           </div>
           <UserNav session={session} />
+        </div>
+
+        <hr />
+
+        <div className="flex gap-4">
+          {wine?.imageUrl ? (
+            <img
+              src={wine.imageUrl}
+              alt={wine.name}
+              className="col-span-1 h-40"
+            />
+          ) : (
+            <div className="h-40 w-40 bg-gray-200" />
+          )}
+          <div>
+            <h1 className="text-3xl font-bold">{wine?.name}</h1>
+            <p className="text-lg font-light">
+              {wine?.year} {wine?.type} •{" "}
+              {wine?.wineryKey
+                ? wineries.find((winery) => winery.key === wine?.wineryKey)
+                    ?.name ?? ""
+                : ""}
+            </p>
+            <p className="text-lg font-light">{wine?.rating} Rating</p>
+            <p className="text-sm font-light">{wine?.note}</p>
+          </div>
+
+          <div className="flex w-full justify-end">
+            <Button
+              onClick={() => router.push(`/${wine?.id}/edit`)}
+              variant="outline"
+            >
+              Edit
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-4">
+          <Button
+            onClick={() => setShowConsumed(!showConsumed)}
+            variant="outline"
+          >
+            {showConsumed ? "Hide Consumed" : "Show Consumed"}
+          </Button>
         </div>
 
         <Table.Table>
@@ -130,6 +172,7 @@ export default function Home() {
           <Table.TableHeader>
             <Table.TableRow>
               <Table.TableHead>ID</Table.TableHead>
+              <Table.TableHead>Date Created</Table.TableHead>
               <Table.TableHead>Consumed</Table.TableHead>
               <Table.TableHead>Date Consumed</Table.TableHead>
               <Table.TableHead>Note</Table.TableHead>
@@ -140,6 +183,9 @@ export default function Home() {
             {wineBottles?.map((bottle, index) => (
               <Table.TableRow key={bottle.counter + index}>
                 <Table.TableCell>{bottle.counter}</Table.TableCell>
+                <Table.TableCell>
+                  {format(bottle.createdAt, "PPP")}
+                </Table.TableCell>
                 <Table.TableCell>
                   {bottle.consumed ? "Yes" : "No"}
                 </Table.TableCell>

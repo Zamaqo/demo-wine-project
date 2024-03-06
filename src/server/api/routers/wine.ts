@@ -11,21 +11,12 @@ export const wineRouter = createTRPCRouter({
     return wines;
   }),
 
-  getWineBottles: protectedProcedure
-    .input(z.object({ id: z.number() }))
-    .query(async ({ ctx, input }) => {
-      const bottles = await ctx.db.wineBottle.findMany({
-        where: { wine: { id: input.id, createdById: ctx.session.user.id } },
-        orderBy: { counter: "asc" },
-      });
-      return bottles;
-    }),
-
   getWine: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
       const wine = await ctx.db.wine.findUnique({
         where: { id: input.id },
+        include: { wineBottles: true },
       });
       return wine;
     }),

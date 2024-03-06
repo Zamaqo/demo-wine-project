@@ -69,6 +69,16 @@ export default function EditWine() {
 
   const [uploadBusy, setUploadBusy] = useState(false);
 
+  const deleteWine = api.wine.deleteWine.useMutation();
+  const handleDeleteWine = async (id: number) => {
+    utils.wine.getWines.setData(undefined, (prev) => {
+      if (!prev) return prev;
+      return prev.filter((wine) => wine.id !== id);
+    });
+
+    await deleteWine.mutateAsync({ id });
+  };
+
   return (
     <>
       <Head>
@@ -86,7 +96,7 @@ export default function EditWine() {
                 <img
                   src={wine?.imageUrl ?? ""}
                   alt="Uploaded wine label"
-                  className="h-auto w-full rounded-md"
+                  className="max-h-80 w-full rounded-md border border-border object-contain"
                   fetchPriority="high"
                 />
                 <Button
@@ -336,47 +346,6 @@ export default function EditWine() {
             disabled={!wine}
           />
         </fieldset>
-        {/*  <fieldset className="flex items-center gap-4">
-          <Checkbox
-            id="consumed"
-            checked={wine?.consumed}
-            onCheckedChange={(checked) =>
-              wine && setWine({ ...wine, consumed: checked as boolean })
-            }
-            disabled={!wine}
-          />
-          <Label htmlFor="consumed">Consumed</Label>
-
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={cn(
-                  "ml-auto w-[240px] justify-start text-left font-normal",
-                  !wine?.dateConsumed && "text-muted-foreground",
-                )}
-                disabled={!wine || !wine.consumed}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {wine?.dateConsumed ? (
-                  format(wine?.dateConsumed, "PPP")
-                ) : (
-                  <span>Date Consumed</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={wine?.dateConsumed ?? undefined}
-                onSelect={(date) =>
-                  wine && setWine({ ...wine, dateConsumed: date ?? null })
-                }
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-        </fieldset> */}
 
         <fieldset>
           <Label htmlFor="note">Note</Label>
@@ -392,7 +361,15 @@ export default function EditWine() {
           <Button>
             <Link href="/">Cancel</Link>
           </Button>
-          <Button onClick={handleSaveWine}>Save</Button>
+          <div className="flex gap-4">
+            <Button
+              onClick={() => handleDeleteWine(wine!.id)}
+              variant="destructive"
+            >
+              Delete
+            </Button>
+            <Button onClick={handleSaveWine}>Save</Button>
+          </div>
         </div>
       </main>
     </>

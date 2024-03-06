@@ -85,7 +85,7 @@ export default function CreateWine() {
                 <img
                   src={wine?.imageUrl ?? ""}
                   alt="Uploaded wine label"
-                  className="h-auto w-full rounded-md"
+                  className="max-h-80 w-full rounded-md border border-border object-contain"
                   fetchPriority="high"
                 />
                 <Button
