@@ -53,7 +53,7 @@ export default function EditWine() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="mx-auto my-4 max-w-lg space-y-4 px-8">
-        <h1 className="text-center text-3xl font-bold">Edit Wine</h1>
+        <h1 className="text-center text-3xl font-bold">Edit Bottle</h1>
 
         <fieldset className="flex items-center gap-4">
           <Checkbox
