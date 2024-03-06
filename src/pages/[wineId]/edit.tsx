@@ -1,15 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 import type { WineType } from "@prisma/client";
-import { format } from "date-fns";
-import { CalendarIcon, XIcon } from "lucide-react";
+import { XIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
-import { Checkbox } from "~/components/ui/checkbox";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import {
@@ -48,18 +45,18 @@ export default function EditWine() {
   const utils = api.useUtils();
   const wineId = router.query.wineId as string | undefined;
 
-  const [wine, setWine] = useState<RouterOutputs["wine"]["getOne"] | null>(
+  const [wine, setWine] = useState<RouterOutputs["wine"]["getWine"] | null>(
     null,
   );
 
   useEffect(() => {
     if (wineId === undefined || wine) return;
-    void utils.wine.getOne
+    void utils.wine.getWine
       .fetch({ id: parseInt(wineId) })
       .then((wine) => setWine(wine));
-  }, [wineId, wine, utils.wine.getOne]);
+  }, [wineId, wine, utils.wine.getWine]);
 
-  const editWine = api.wine.edit.useMutation();
+  const editWine = api.wine.editWine.useMutation();
   const handleSaveWine = async () => {
     if (wine === null) return;
 
@@ -339,7 +336,7 @@ export default function EditWine() {
             disabled={!wine}
           />
         </fieldset>
-        <fieldset className="flex items-center gap-4">
+        {/*  <fieldset className="flex items-center gap-4">
           <Checkbox
             id="consumed"
             checked={wine?.consumed}
@@ -379,7 +376,7 @@ export default function EditWine() {
               />
             </PopoverContent>
           </Popover>
-        </fieldset>
+        </fieldset> */}
 
         <fieldset>
           <Label htmlFor="note">Note</Label>

@@ -28,6 +28,7 @@ import {
 } from "~/components/ui/command";
 import { wineries } from "~/lib/data";
 import { UploadButton } from "~/utils/uploadthing";
+import { Textarea } from "~/components/ui/textarea";
 
 const WINE_TYPES: WineType[] = [
   "RED",
@@ -37,7 +38,7 @@ const WINE_TYPES: WineType[] = [
   "WHITE_BLEND",
 ];
 
-type WineInput = RouterInputs["wine"]["create"];
+type WineInput = RouterInputs["wine"]["createWine"];
 const DEFAULT_WINE: WineInput = {
   name: "",
   imageUrl: "",
@@ -45,10 +46,9 @@ const DEFAULT_WINE: WineInput = {
   type: "RED",
   varietal: "",
   rating: 0,
-  consumed: false,
-  dateConsumed: null,
   quantity: 1,
   wineryKey: "",
+  note: "",
 };
 
 export default function CreateWine() {
@@ -56,7 +56,7 @@ export default function CreateWine() {
   const router = useRouter();
 
   const [wine, setWine] = useState<WineInput>(DEFAULT_WINE);
-  const createWine = api.wine.create.useMutation();
+  const createWine = api.wine.createWine.useMutation();
   const handleSaveWine = async () => {
     await createWine.mutateAsync(wine);
     await router.push("/");
@@ -325,6 +325,16 @@ export default function CreateWine() {
               wine && setWine({ ...wine, rating: parseFloat(e.target.value) })
             }
             disabled={!wine}
+          />
+        </fieldset>
+
+        <fieldset>
+          <Label htmlFor="note">Note</Label>
+          <Textarea
+            id="note"
+            name="note"
+            value={wine.note}
+            onChange={(e) => setWine({ ...wine, note: e.target.value })}
           />
         </fieldset>
 

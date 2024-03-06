@@ -20,18 +20,17 @@ enum WineType {
 model Wine {
     id Int @id @default(autoincrement())
 
-    counter Int @default(0) // Used for counting wines for user
+    name     String   @db.Text
+    year     Int
+    type     WineType
+    varietal String   @db.Text
+    rating   Float
 
-    name         String    @db.Text
-    year         Int
-    type         WineType
-    varietal     String    @db.Text
-    rating       Float
-    consumed     Boolean
-    dateConsumed DateTime?
-    wineryKey    String    @db.Text
-    note         String    @db.Text
-    imageUrl     String?
+    wineryKey String  @db.Text
+    note      String  @db.Text
+    imageUrl  String?
+
+    wineBottles WineBottle[]
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -40,6 +39,22 @@ model Wine {
     createdById String
 
     @@index([name])
+}
+
+model WineBottle {
+    id Int @id @default(autoincrement())
+
+    consumed     Boolean
+    dateConsumed DateTime?
+    note         String    @db.Text
+
+    counter Int @default(0) // Used for counting wines for user
+
+    wine   Wine @relation(fields: [wineId], references: [id], onDelete: Cascade)
+    wineId Int
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 // Necessary for Next auth
