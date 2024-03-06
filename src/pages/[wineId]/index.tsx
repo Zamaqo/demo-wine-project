@@ -29,6 +29,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { Label } from "~/components/ui/label";
 import { wineries } from "~/lib/data";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import { Input } from "~/components/ui/input";
 
 export default function Home() {
   const { data: session } = useSession({ required: true });
@@ -63,17 +64,6 @@ export default function Home() {
     await deleteWineBottle.mutateAsync({ id });
   };
 
-  const [addingWineBottle, setAddingWineBottle] = useState(false);
-  const addWineBottle = api.wine.addBottle.useMutation();
-  const handleAddWineBottle = async () => {
-    setAddingWineBottle(true);
-    await addWineBottle.mutateAsync({ id: wineId ? parseInt(wineId) : 0 });
-    await utils.wine.getWine.invalidate({
-      id: wineId ? parseInt(wineId) : 0,
-    });
-    setAddingWineBottle(false);
-  };
-
   const [consumingWineBottle, setConsumingWineBottle] =
     useState<WineBottle | null>(null);
 
@@ -101,6 +91,28 @@ export default function Home() {
     setConsumingWineBottle(null);
   };
 
+  const [addWineBottleData, setAddWineBottleData] = useState<{
+    note: string;
+    quantity: number;
+  } | null>(null);
+
+  const [addingWineBottle, setAddingWineBottle] = useState(false);
+  const addWineBottle = api.wine.addBottle.useMutation();
+  const handleAddWineBottle = async () => {
+    if (!addWineBottleData) return;
+
+    setAddingWineBottle(true);
+    await addWineBottle.mutateAsync({
+      id: wineId ? parseInt(wineId) : 0,
+      ...addWineBottleData,
+    });
+    await utils.wine.getWine.invalidate({
+      id: wineId ? parseInt(wineId) : 0,
+    });
+    setAddingWineBottle(false);
+    setAddWineBottleData(null);
+  };
+
   return (
     <>
       <Head>
@@ -115,10 +127,10 @@ export default function Home() {
               <Link href="/">Go Back</Link>
             </Button>
             <Button
-              onClick={() => void handleAddWineBottle()}
+              onClick={() => setAddWineBottleData({ note: "", quantity: 1 })}
               disabled={addingWineBottle}
             >
-              Add Bottle
+              Add Bottles
             </Button>
           </div>
           <UserNav session={session} />
@@ -209,7 +221,6 @@ export default function Home() {
                         ...bottle,
                         consumed: true,
                         dateConsumed: new Date(),
-                        note: "",
                       })
                     }
                     variant="outline"
@@ -296,6 +307,55 @@ export default function Home() {
 
             <DialogFooter>
               <Button onClick={handleConsumeWineBottle}>Consume</Button>
+            </DialogFooter>
+          </DialogContent>
+        </DialogPortal>
+      </Dialog>
+
+      <Dialog
+        open={!!addWineBottleData}
+        onOpenChange={(open) => !open && setAddWineBottleData(null)}
+      >
+        <DialogPortal>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Bottles</DialogTitle>
+            </DialogHeader>
+
+            <fieldset>
+              <Label htmlFor="quantity">Quantity</Label>
+              <Input
+                id="quantity"
+                name="quantity"
+                type="number"
+                onChange={(e) =>
+                  addWineBottleData &&
+                  setAddWineBottleData({
+                    ...addWineBottleData,
+                    quantity: parseInt(e.target.value),
+                  })
+                }
+              />
+            </fieldset>
+
+            <fieldset>
+              <Label htmlFor="note">Note</Label>
+              <Textarea
+                id="note"
+                name="note"
+                value={addWineBottleData?.note ?? ""}
+                onChange={(e) =>
+                  addWineBottleData &&
+                  setAddWineBottleData({
+                    ...addWineBottleData,
+                    note: e.target.value,
+                  })
+                }
+              />
+            </fieldset>
+
+            <DialogFooter>
+              <Button onClick={handleAddWineBottle}>Add</Button>
             </DialogFooter>
           </DialogContent>
         </DialogPortal>
