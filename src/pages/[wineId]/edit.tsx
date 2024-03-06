@@ -77,6 +77,7 @@ export default function EditWine() {
     });
 
     await deleteWine.mutateAsync({ id });
+    await router.push("/");
   };
 
   return (
