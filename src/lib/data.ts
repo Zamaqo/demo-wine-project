@@ -312,6 +312,12 @@ export const wineries = [
     key: "grandeprovence",
   },
   {
+    name: "Badsberg Wine Cellar",
+    coords: "33°50′14″S 18°54′51″E",
+    location: "Rawsonville",
+    key: "badsbergwinecellar",
+  },
+  {
     name: "Haute Provence",
     coords: "33°53′49″S 19°6′5″E",
     location: "Franschhoek",
