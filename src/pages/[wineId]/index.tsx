@@ -9,6 +9,23 @@ import { api } from "~/utils/api";
 import { useRouter } from "next/router";
 import { format } from "date-fns";
 import Link from "next/link";
+import { useState } from "react";
+import type { WineBottle } from "@prisma/client";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogPortal,
+  DialogTitle,
+} from "~/components/ui/dialog";
+import { Popover, PopoverTrigger } from "~/components/ui/popover";
+import { cn } from "~/lib/utils";
+import { CalendarIcon } from "lucide-react";
+import { PopoverContent } from "@radix-ui/react-popover";
+import { Calendar } from "~/components/ui/calendar";
+import { Textarea } from "~/components/ui/textarea";
+import { Label } from "~/components/ui/label";
 
 export default function Home() {
   const { data: session } = useSession({ required: true });
@@ -64,6 +81,30 @@ export default function Home() {
     await addWineBottle.mutateAsync({ id: wineId ? parseInt(wineId) : 0 });
   };
 
+  const [consumingWineBottle, setConsumingWineBottle] =
+    useState<WineBottle | null>(null);
+
+  const editBottle = api.wine.editWineBottle.useMutation();
+  const handleConsumeWineBottle = async () => {
+    if (!consumingWineBottle) return;
+
+    utils.wine.getWineBottles.setData(
+      { id: wineId ? parseInt(wineId) : 0 },
+      (prev) => {
+        if (!prev) return prev;
+        return prev.map((wine) => {
+          if (wine.id === consumingWineBottle.id) {
+            return consumingWineBottle;
+          }
+          return wine;
+        });
+      },
+    );
+
+    void editBottle.mutateAsync({ ...consumingWineBottle });
+    setConsumingWineBottle(null);
+  };
+
   return (
     <>
       <Head>
@@ -110,10 +151,18 @@ export default function Home() {
                 <Table.TableCell>{bottle.note}</Table.TableCell>
                 <Table.TableCell className="flex gap-2">
                   <Button
-                    onClick={() => router.push(`/${wineId}/${bottle.id}/edit`)}
+                    onClick={() =>
+                      setConsumingWineBottle({
+                        ...bottle,
+                        consumed: true,
+                        dateConsumed: new Date(),
+                        note: "",
+                      })
+                    }
                     variant="outline"
+                    disabled={bottle.consumed}
                   >
-                    Edit
+                    Consume
                   </Button>
                   <Button
                     onClick={() => handleDeleteWineBottle(bottle.id)}
@@ -127,6 +176,75 @@ export default function Home() {
           </Table.TableBody>
         </Table.Table>
       </main>
+      <Dialog
+        open={!!consumingWineBottle}
+        onOpenChange={(open) => !open && setConsumingWineBottle(null)}
+      >
+        <DialogPortal>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Consume Bottle</DialogTitle>
+            </DialogHeader>
+
+            <fieldset>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "ml-auto w-[240px] justify-start text-left font-normal",
+                      !consumingWineBottle?.dateConsumed &&
+                        "text-muted-foreground",
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {consumingWineBottle?.dateConsumed ? (
+                      format(consumingWineBottle?.dateConsumed, "PPP")
+                    ) : (
+                      <span>Date Consumed</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    className="w-full"
+                    selected={consumingWineBottle?.dateConsumed ?? undefined}
+                    onSelect={(date) =>
+                      consumingWineBottle &&
+                      setConsumingWineBottle({
+                        ...consumingWineBottle,
+                        dateConsumed: date ?? null,
+                      })
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </fieldset>
+
+            <fieldset>
+              <Label htmlFor="note">Note</Label>
+              <Textarea
+                id="note"
+                name="note"
+                value={consumingWineBottle?.note ?? ""}
+                onChange={(e) =>
+                  consumingWineBottle &&
+                  setConsumingWineBottle({
+                    ...consumingWineBottle,
+                    note: e.target.value,
+                  })
+                }
+              />
+            </fieldset>
+
+            <DialogFooter>
+              <Button onClick={handleConsumeWineBottle}>Consume</Button>
+            </DialogFooter>
+          </DialogContent>
+        </DialogPortal>
+      </Dialog>
     </>
   );
 }
