@@ -205,10 +205,12 @@ export default function Home() {
                     )}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-full p-0" align="start">
+                <PopoverContent
+                  className="w-auto rounded-lg border bg-background p-0"
+                  align="start"
+                >
                   <Calendar
                     mode="single"
-                    className="w-full"
                     selected={consumingWineBottle?.dateConsumed ?? undefined}
                     onSelect={(date) =>
                       consumingWineBottle &&
