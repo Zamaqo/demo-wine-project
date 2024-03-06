@@ -28,6 +28,7 @@ import { Calendar } from "~/components/ui/calendar";
 import { Textarea } from "~/components/ui/textarea";
 import { Label } from "~/components/ui/label";
 import { wineries } from "~/lib/data";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
 export default function Home() {
   const { data: session } = useSession({ required: true });
@@ -130,30 +131,38 @@ export default function Home() {
             <img
               src={wine.imageUrl}
               alt={wine.name}
-              className="col-span-1 h-40"
+              className="col-span-1 h-44"
             />
           ) : (
-            <div className="h-40 w-40 bg-gray-200" />
+            <div className="h-44 w-44 bg-gray-200" />
           )}
-          <div className="grow">
-            <h1 className="text-3xl font-bold">{wine?.name}</h1>
-            <p className="text-lg font-light">
-              {wine?.year} {wine?.type} •{" "}
-              {wine?.wineryKey
-                ? wineries.find((winery) => winery.key === wine?.wineryKey)
-                    ?.name ?? ""
-                : ""}
-            </p>
-            <p className="text-lg font-light">{wine?.rating} Rating</p>
-            <p className="text-sm font-light">{wine?.note}</p>
-          </div>
 
-          <Button
-            onClick={() => router.push(`/${wine?.id}/edit`)}
-            variant="outline"
-          >
-            Edit
-          </Button>
+          <div className="w-full">
+            <div className="flex">
+              <div className="grow">
+                <h1 className="text-3xl font-bold">{wine?.name}</h1>
+                <p className="text-lg font-light">
+                  {wine?.year} {wine?.type} •{" "}
+                  {wine?.wineryKey
+                    ? wineries.find((winery) => winery.key === wine?.wineryKey)
+                        ?.name ?? ""
+                    : ""}
+                </p>
+                <p className="text-lg font-light">{wine?.rating} Rating</p>
+              </div>
+
+              <Button
+                onClick={() => router.push(`/${wine?.id}/edit`)}
+                variant="outline"
+              >
+                Edit
+              </Button>
+            </div>
+
+            <ScrollArea className="h-20 text-sm font-light">
+              {wine?.note}
+            </ScrollArea>
+          </div>
         </div>
 
         <div className="flex items-center justify-end gap-4">

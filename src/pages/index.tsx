@@ -10,6 +10,7 @@ import { api } from "~/utils/api";
 
 import { wineries } from "~/lib/data";
 import { useRouter } from "next/router";
+import { ScrollArea } from "~/components/ui/scroll-area";
 
 export default function Home() {
   const { data: session } = useSession({ required: true });
@@ -54,7 +55,12 @@ export default function Home() {
               <Table.TableRow
                 key={wine.name + index}
                 onClick={(e) => {
-                  if (e.target instanceof HTMLButtonElement) return;
+                  if (
+                    e.target instanceof HTMLElement &&
+                    e.target.closest("#scroll-area")
+                  )
+                    return;
+
                   void router.push(`/${wine.id}`);
                 }}
                 className="cursor-pointer"
@@ -84,7 +90,11 @@ export default function Home() {
                 </Table.TableCell>
                 <Table.TableCell>{wine.rating}</Table.TableCell>
                 <Table.TableCell>{wine.varietal}</Table.TableCell>
-                <Table.TableCell>{wine.note}</Table.TableCell>
+                <Table.TableCell className="relative h-full w-60">
+                  <div className="absolute inset-0" id="scroll-area">
+                    <ScrollArea className="h-full">{wine.note}</ScrollArea>
+                  </div>
+                </Table.TableCell>
               </Table.TableRow>
             ))}
           </Table.TableBody>
