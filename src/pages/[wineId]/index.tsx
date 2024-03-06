@@ -91,6 +91,7 @@ export default function Home() {
               <Table.TableHead>ID</Table.TableHead>
               <Table.TableHead>Consumed</Table.TableHead>
               <Table.TableHead>Date Consumed</Table.TableHead>
+              <Table.TableHead>Note</Table.TableHead>
               <Table.TableHead>Actions</Table.TableHead>
             </Table.TableRow>
           </Table.TableHeader>
@@ -106,6 +107,7 @@ export default function Home() {
                     ? format(bottle.dateConsumed, "PPP")
                     : "N/A"}
                 </Table.TableCell>
+                <Table.TableCell>{bottle.note}</Table.TableCell>
                 <Table.TableCell className="flex gap-2">
                   <Button
                     onClick={() => router.push(`/${wineId}/${bottle.id}/edit`)}

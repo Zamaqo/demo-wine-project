@@ -62,7 +62,8 @@ export default function Home() {
             {wines?.map((wine, index) => (
               <Table.TableRow
                 key={wine.name + index}
-                onClick={() => {
+                onClick={(e) => {
+                  if (e.target instanceof HTMLButtonElement) return;
                   void router.push(`/${wine.id}`);
                 }}
                 className="cursor-pointer"
