@@ -73,7 +73,8 @@ const formSchema = z.object({
   rating: z
     .number({ invalid_type_error: "A value for this field is required" })
     .min(0)
-    .max(5),
+    .max(5)
+    .step(0.1),
   wineryKey: z.string().min(1, { message: "A selected winery is required" }),
   note: z.string().max(500),
 });
@@ -302,8 +303,6 @@ export default function CreateWine() {
                   <Input
                     {...field}
                     type="number"
-                    max={new Date().getFullYear()}
-                    min={1900}
                     onChange={(e) => {
                       field.onChange(parseInt(e.target.value, 10));
                     }}
@@ -394,10 +393,6 @@ export default function CreateWine() {
                 <FormControl>
                   <Input
                     {...field}
-                    step="0.1"
-                    max="5"
-                    min="0"
-                    type="number"
                     onChange={(e) => {
                       field.onChange(parseFloat(e.target.value) || "");
                     }}
