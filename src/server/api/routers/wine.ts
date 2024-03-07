@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
@@ -12,6 +13,26 @@ export const wineRouter = createTRPCRouter({
   }),
 
   getWine: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const wine = await ctx.db.wine.findUnique({
+        where: { id: input.id },
+        include: {
+          wineBottles: {
+            orderBy: {
+              counter: "asc",
+            },
+          },
+        },
+      });
+
+      if (wine?.createdById !== ctx.session.user.id)
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+
+      return wine;
+    }),
+
+  getWineNoPermission: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
       const wine = await ctx.db.wine.findUnique({
@@ -74,6 +95,13 @@ export const wineRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const _wine = await ctx.db.wine.findUnique({
+        where: { id: input.id },
+      });
+
+      if (_wine?.createdById !== ctx.session.user.id)
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+
       const wine = await ctx.db.wine.update({
         where: { id: input.id },
         data: {
@@ -134,6 +162,34 @@ export const wineRouter = createTRPCRouter({
       const data = Array.from({ length: input.quantity }).map((_, idx) => ({
         consumed: false,
         counter: lastWine ? lastWine.counter + 1 + idx : 1 + idx,
+        note: input.note,
+      }));
+
+      const wine = await ctx.db.wine.update({
+        where: { id: input.id },
+        data: {
+          wineBottles: {
+            createMany: {
+              data,
+            },
+          },
+        },
+      });
+      return wine;
+    }),
+
+  addBottleError: protectedProcedure
+    .input(z.object({ id: z.number(), quantity: z.number(), note: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const lastWine = await ctx.db.wineBottle.findFirst({
+        where: { wine: { createdById: ctx.session.user.id } },
+        orderBy: { id: "desc" },
+        select: { counter: true },
+      });
+
+      const data = Array.from({ length: input.quantity }).map((_, idx) => ({
+        consumed: false,
+        counter: lastWine ? lastWine.counter + idx : idx, // BUG
         note: input.note,
       }));
 
