@@ -393,6 +393,7 @@ export default function CreateWine() {
                 <FormControl>
                   <Input
                     {...field}
+                    type="number"
                     onChange={(e) => {
                       field.onChange(parseFloat(e.target.value) || "");
                     }}
