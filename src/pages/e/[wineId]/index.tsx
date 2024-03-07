@@ -100,7 +100,7 @@ export default function Home() {
   } | null>(null);
 
   const [addingWineBottle, setAddingWineBottle] = useState(false);
-  const addWineBottle = api.wine.addBottleError.useMutation();
+  const addWineBottle = api.wine.addBottle.useMutation();
   const handleAddWineBottle = async () => {
     if (!addWineBottleData) return;
 
