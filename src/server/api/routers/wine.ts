@@ -45,34 +45,15 @@ export const wineRouter = createTRPCRouter({
         year: z.number(),
         varietal: z.string(),
         rating: z.number(),
-        quantity: z.number(),
         note: z.string(),
         wineryKey: z.string().min(1),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const lastWine = await ctx.db.wineBottle.findFirst({
-        where: { wine: { createdById: ctx.session.user.id } },
-        orderBy: { id: "desc" },
-        select: { counter: true },
-      });
-
-      const { quantity, ...rest } = input;
-      const data = Array.from({ length: quantity }).map((_, idx) => ({
-        consumed: false,
-        counter: lastWine ? lastWine.counter + 1 + idx : 1 + idx,
-        note: "",
-      }));
-
       const wine = await ctx.db.wine.create({
         data: {
-          ...rest,
+          ...input,
           createdBy: { connect: { id: ctx.session.user.id } },
-          wineBottles: {
-            createMany: {
-              data,
-            },
-          },
         },
       });
       return wine;

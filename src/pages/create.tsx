@@ -46,7 +46,6 @@ const DEFAULT_WINE: WineInput = {
   type: "RED",
   varietal: "",
   rating: 0,
-  quantity: 1,
   wineryKey: "",
   note: "",
 };
