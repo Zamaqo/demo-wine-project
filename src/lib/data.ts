@@ -522,6 +522,12 @@ export const wineries = [
     key: "kleinboschwines",
   },
   {
+    name: "Kleine Zalze",
+    coords: "33°38′2″S 18°59′37″E",
+    location: "Stellenbosch",
+    key: "kleinezalze",
+  },
+  {
     name: "Klein Rhebokskloof",
     coords: "33°39′46″S 19°1′56″E",
     location: "Paarl and Wellington",
