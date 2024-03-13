@@ -10,14 +10,25 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { api } from "~/utils/api";
 
 interface UserNavProps {
   session?: Session | null;
 }
 
 export function UserNav({ session }: UserNavProps) {
+  const { data: applicationVersion } =
+    api.wine.getApplicationVersion.useQuery();
+  const editVersion = api.wine.editApplicationVersion.useMutation();
+  const handleToggleVersion = async () => {
+    await editVersion.mutateAsync({
+      version: applicationVersion === 1 ? 2 : 1,
+    });
+    location.reload();
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -52,6 +63,13 @@ export function UserNav({ session }: UserNavProps) {
             </p>
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => handleToggleVersion()}>
+          Toggle version
+          {applicationVersion !== undefined && (
+            <DropdownMenuShortcut>V{applicationVersion}</DropdownMenuShortcut>
+          )}
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut({ redirect: true })}>
           Log out

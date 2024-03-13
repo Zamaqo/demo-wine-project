@@ -91,9 +91,12 @@ model User {
     emailVerified DateTime?
     password      String?
     image         String?
-    accounts      Account[]
-    sessions      Session[]
-    wines         Wine[]
+
+    version Int @default(1)
+
+    accounts Account[]
+    sessions Session[]
+    wines    Wine[]
 }
 
 model VerificationToken {

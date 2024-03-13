@@ -116,6 +116,8 @@ export default function Home() {
     setAddWineBottleData(null);
   };
 
+  const { data: version } = api.wine.getApplicationVersion.useQuery();
+
   return (
     <>
       <Head>
@@ -182,7 +184,7 @@ export default function Home() {
 
         <div className="flex items-center justify-end gap-4">
           <Button
-            onClick={() => setShowConsumed(!showConsumed)}
+            onClick={() => version === 1 && setShowConsumed(!showConsumed)}
             variant="outline"
           >
             {showConsumed ? "Hide Consumed" : "Show Consumed"}

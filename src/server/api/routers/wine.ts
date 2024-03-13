@@ -32,22 +32,6 @@ export const wineRouter = createTRPCRouter({
       return wine;
     }),
 
-  getWineNoPermission: protectedProcedure
-    .input(z.object({ id: z.number() }))
-    .query(async ({ ctx, input }) => {
-      const wine = await ctx.db.wine.findUnique({
-        where: { id: input.id },
-        include: {
-          wineBottles: {
-            orderBy: {
-              counter: "asc",
-            },
-          },
-        },
-      });
-      return wine;
-    }),
-
   getBottle: protectedProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
@@ -178,31 +162,23 @@ export const wineRouter = createTRPCRouter({
       return wine;
     }),
 
-  addBottleError: protectedProcedure
-    .input(z.object({ id: z.number(), quantity: z.number(), note: z.string() }))
+  editApplicationVersion: protectedProcedure
+    .input(z.object({ version: z.number() }))
     .mutation(async ({ ctx, input }) => {
-      const lastWine = await ctx.db.wineBottle.findFirst({
-        where: { wine: { createdById: ctx.session.user.id } },
-        orderBy: { id: "desc" },
-        select: { counter: true },
-      });
-
-      const data = Array.from({ length: input.quantity }).map((_, idx) => ({
-        consumed: false,
-        counter: lastWine ? lastWine.counter + idx : idx, // BUG
-        note: input.note,
-      }));
-
-      const wine = await ctx.db.wine.update({
-        where: { id: input.id },
+      const version = await ctx.db.user.update({
+        where: { id: ctx.session.user.id },
         data: {
-          wineBottles: {
-            createMany: {
-              data,
-            },
-          },
+          version: input.version,
         },
       });
-      return wine;
+      return version;
     }),
+
+  getApplicationVersion: protectedProcedure.query(async ({ ctx }) => {
+    const version = await ctx.db.user.findUnique({
+      where: { id: ctx.session.user.id },
+      select: { version: true },
+    });
+    return version?.version;
+  }),
 });

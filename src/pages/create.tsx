@@ -71,7 +71,7 @@ const formSchema = z.object({
   type: z.enum(["RED", "WHITE", "ROSE", "RED_BLEND", "WHITE_BLEND"]),
   varietal: z.string(),
   rating: z
-    .number({ invalid_type_error: "A value for this field is required" })
+    .number({ invalid_type_error: "Number must be less than or equal to 5" })
     .min(0)
     .max(5)
     .step(0.1),
@@ -102,6 +102,8 @@ export default function CreateWine() {
   const [typeSelectorOpen, setTypeSelectorOpen] = useState(false);
 
   const [uploadBusy, setUploadBusy] = useState(false);
+
+  const { data: version } = api.wine.getApplicationVersion.useQuery();
 
   return (
     <>
@@ -393,9 +395,12 @@ export default function CreateWine() {
                 <FormControl>
                   <Input
                     {...field}
+                    value={parseFloat(field.value.toString())}
                     type="number"
                     onChange={(e) => {
-                      field.onChange(parseFloat(e.target.value) || "");
+                      version === 1
+                        ? field.onChange(parseFloat(e.target.value))
+                        : field.onChange(e.target.value.toString());
                     }}
                   />
                 </FormControl>
