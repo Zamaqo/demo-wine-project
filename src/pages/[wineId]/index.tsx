@@ -343,7 +343,10 @@ export default function Home() {
                   addWineBottleData &&
                   setAddWineBottleData({
                     ...addWineBottleData,
-                    quantity: parseInt(e.target.value),
+                    quantity:
+                      version === 1
+                        ? parseInt(e.target.value)
+                        : parseInt(e.target.value) + 1,
                   })
                 }
               />
