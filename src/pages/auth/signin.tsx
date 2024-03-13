@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 
-import Splash from "public/splash.svg";
+import Splash from "public/splash.jpg";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { signIn } from "next-auth/react";
@@ -32,7 +32,7 @@ export default function AuthenticationPage() {
         <div className="relative hidden h-full flex-col p-10 text-white dark:border-r lg:flex">
           <div className="absolute inset-0">
             <Image
-              className="h-full w-full self-center object-cover object-top"
+              className="h-full w-full self-center object-cover object-center"
               alt="Testimonial"
               src={Splash}
               width={2400}
