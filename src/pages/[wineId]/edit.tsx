@@ -210,7 +210,7 @@ export default function EditWine() {
                 variant="outline"
                 role="combobox"
                 aria-expanded={winerySelectorOpen}
-                className="flex w-[200px] justify-between"
+                className="flex w-64 justify-between"
               >
                 {wine?.wineryKey
                   ? wineries.find((winery) => winery.key === wine.wineryKey)
@@ -219,41 +219,43 @@ export default function EditWine() {
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
+            <PopoverContent className="w-64 p-0">
               <Command>
                 <CommandInput placeholder="Search winery..." />
                 <CommandEmpty>No wineries found.</CommandEmpty>
                 <CommandGroup className="max-h-60 overflow-y-auto">
-                  {wineries.map((winery) => (
-                    <CommandItem
-                      key={winery.key}
-                      value={winery.key}
-                      onSelect={(currentValue: string) => {
-                        setWine((prev) =>
-                          prev
-                            ? {
-                                ...prev,
-                                wineryKey:
-                                  currentValue === prev.wineryKey
-                                    ? ""
-                                    : currentValue,
-                              }
-                            : null,
-                        );
-                        setWinerySelectorOpen(false);
-                      }}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          wine?.wineryKey === winery.key
-                            ? "opacity-100"
-                            : "opacity-0",
-                        )}
-                      />
-                      {winery.name}
-                    </CommandItem>
-                  ))}
+                  {wineries
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map((winery) => (
+                      <CommandItem
+                        key={winery.key}
+                        value={winery.key}
+                        onSelect={(currentValue: string) => {
+                          setWine((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  wineryKey:
+                                    currentValue === prev.wineryKey
+                                      ? ""
+                                      : currentValue,
+                                }
+                              : null,
+                          );
+                          setWinerySelectorOpen(false);
+                        }}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            wine?.wineryKey === winery.key
+                              ? "opacity-100"
+                              : "opacity-0",
+                          )}
+                        />
+                        {winery.name}
+                      </CommandItem>
+                    ))}
                 </CommandGroup>
               </Command>
             </PopoverContent>
